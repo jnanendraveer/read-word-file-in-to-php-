@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Read-word-file-in-to-php- by jnanendraveer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Read-word-file-in-to-php-</h1>
+      <h2 class="project-tagline">PHP DOC DOCX PDF to Text: Convert DOCX, DOC, PDF to plain text  Please create a two php file for convert a word or pdf file into plan text that you can read all word or pdf  file in text format.</h2>
+      <a href="https://github.com/jnanendraveer/read-word-file-in-to-php-" class="btn">View on GitHub</a>
+      <a href="https://github.com/jnanendraveer/read-word-file-in-to-php-/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/jnanendraveer/read-word-file-in-to-php-/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <p>Read word file in to php</p>
+
+<p>Hello Guys,
+PHP DOC DOCX PDF to Text: Convert DOCX, DOC, PDF to plain text</p>
+
+<p>Please create a two php file for convert a word or pdf file into plan text that you can read all word or pdf  file in text format.</p>
+
+<p>Step 1</p>
+
+<p>require(“classtext.php”);</p>
+
+<p>$docObj = new Filetotext(“Meta-Tags-Fitpass.docx”);
+//$docObj = new Filetotext(“test.pdf”);
+$return = $docObj-&gt;convertToText();
+var_dump(explode(”,$return));
+var_dump(extract_numbers($return));
+function extract_numbers($string){
+preg_match_all(‘/([\d]+)/’, $string, $match);</p>
+
+<p>return $match[0];
+}</p>
+
+<p>var_dump(extract_email_address( $return ) );
+function extract_email_address ($string) {
+foreach(preg_split(‘/\s/’, $string) as $token) {
+$email = filter_var(filter_var($token, FILTER_SANITIZE_EMAIL), FILTER_VALIDATE_EMAIL);
+if ($email !== false) {
+$emails[] = str_replace(‘Email’,”,$email);
+}
+}
+return $emails;
+}</p>
+
+<p>Step-2 save file name with classtext.php</p>
+
+<p>&lt;?php
+class classtext {</p>
+
+<p>private $filename;
+var $multibyte = 4; // Use setUnicode(TRUE|FALSE)
+var $convertquotes = ENT_QUOTES; // ENT_COMPAT (double-quotes), ENT_QUOTES (Both), ENT_NOQUOTES (None)
+var $showprogress = true; // TRUE if you have problems with time-out
+var $decodedtext = ”;</p>
+
+<p>public function __construct($filePath) {
+$this-&gt;filename = $filePath;
+}</p>
+
+<p>public function convertToText() {</p>
+
+<p>if(isset($this-&gt;filename) &amp;&amp; !file_exists($this-&gt;filename)) {
+return “File Not exists”;
+}</p>
+
+<p>$fileArray = pathinfo($this-&gt;filename);
+$file_ext = $fileArray[‘extension’];
+if($file_ext == “doc” || $file_ext == “docx”)
+{
+if($file_ext == “doc”) {
+return $this-&gt;read_doc();
+} else {
+return $this-&gt;read_docx();
+}
+} else if( $file_ext == “pdf” ){
+$this-&gt;setFilename( $this-&gt;filename );
+$this-&gt;decodePDF();
+return $this-&gt;output();
+} else {
+return “Invalid File Type”;
+}
+}</p>
+
+<p>private function read_doc() {
+$fileHandle = fopen($this-&gt;filename, “r”);
+$line = <a href="https://github.com/fread" class="user-mention">@fread</a>($fileHandle, filesize($this-&gt;filename));
+$lines = explode(chr(0x0D),$line);
+$outtext = “”;
+foreach($lines as $thisline)
+{
+$pos = strpos($thisline, chr(0x00));
+if (($pos !== FALSE)||(strlen($thisline)==0))
+{
+} else {
+$outtext .= $thisline.” “;
+}
+}
+$outtext = preg_replace(“/[^a-zA-Z0-9\s\,.-\n\r\t@\/_()]/”,””,$outtext);
+return $outtext;
+}</p>
+
+<p>private function read_docx(){</p>
+
+<p>$striped_content = ”;
+$content = ”;</p>
+
+<p>$zip = zip_open($this-&gt;filename);</p>
+
+<p>if (!$zip || is_numeric($zip)) return false;</p>
+
+<p>while ($zip_entry = zip_read($zip)) {</p>
+
+<p>if (zip_entry_open($zip, $zip_entry) == FALSE) continue;</p>
+
+<p>if (zip_entry_name($zip_entry) != “word/document.xml”) continue;</p>
+
+<p>$content .= zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));</p>
+
+<p>zip_entry_close($zip_entry);
+}</p>
+
+<p>zip_close($zip);</p>
+
+<p>$content = str_replace(‘<a href="/w:r">/w:r</a><a href="/w:p">/w:p</a><a href="/w:tc">/w:tc</a>’, ” “, $content);
+$content = str_replace(‘<a href="/w:r">/w:r</a><a href="/w:p">/w:p</a>’, “\r\n”, $content);
+$striped_content = strip_tags($content);</p>
+
+<p>return $striped_content;
+}</p>
+
+<p>private function setFilename($filename) {
+$this-&gt;decodedtext = ”;
+$this-&gt;filename = $filename;
+}</p>
+
+<p>private function output($echo = false) {
+if($echo) echo $this-&gt;decodedtext;
+else return $this-&gt;decodedtext;
+}</p>
+
+<p>private function setUnicode($input) {
+if($input == true) $this-&gt;multibyte = 4;
+else $this-&gt;multibyte = 2;
+}</p>
+
+<p>private function decodePDF() {
+$infile = @file_get_contents($this-&gt;filename, FILE_BINARY);
+if (empty($infile))
+return “”;</p>
+
+<p>$transformations = array();
+$texts = array();</p>
+
+<p>preg_match_all(“#obj<a href=".*">\n|\r</a>endobj[\n|\r]#ismU”, $infile . “endobj\r”, $objects);
+$objects = @$objects[1];</p>
+
+<p>for ($i = 0; $i &lt; count($objects); $i++) {
+$currentObject = $objects[$i];</p>
+
+<p>@set_time_limit ();
+if($this-&gt;showprogress) {
+flush(); ob_flush();
+}</p>
+
+<p>if (preg_match(“#stream<a href=".*">\n|\r</a>endstream[\n|\r]#ismU”, $currentObject . “endstream\r”, $stream )) {
+$stream = ltrim($stream[1]);
+$options = $this-&gt;getObjectOptions($currentObject);</p>
+
+<p>if (!(empty($options[“Length1”]) &amp;&amp; empty($options[“Type”]) &amp;&amp; empty($options[“Subtype”])) )
+// if ( $options[“Image”] &amp;&amp; $options[“Subtype”] )
+// if (!(empty($options[“Length1”]) &amp;&amp; empty($options[“Subtype”])) )
+continue;</p>
+
+<p>unset($options[“Length”]);</p>
+
+<p>$data = $this-&gt;getDecodedStream($stream, $options);</p>
+
+<p>if (strlen($data)) {
+if (preg_match_all(“#BT<a href=".*">\n|\r</a>ET[\n|\r]#ismU”, $data . “ET\r”, $textContainers)) {
+$textContainers = @$textContainers[1];
+$this-&gt;getDirtyTexts($texts, $textContainers);
+} else
+$this-&gt;getCharTransformations($transformations, $data);
+}
+}
+}</p>
+
+<p>$this-&gt;decodedtext = $this-&gt;getTextUsingTransformations($texts, $transformations);
+}
+private function decodeAsciiHex($input) {
+$output = “”;</p>
+
+<p>$isOdd = true;
+$isComment = false;</p>
+
+<p>for($i = 0, $codeHigh = -1; $i &lt; strlen($input) &amp;&amp; $input[$i] != ‘&gt;’; $i++) {
+$c = $input[$i];</p>
+
+<p>if($isComment) {
+if ($c == ‘\r’ || $c == ‘\n’)
+$isComment = false;
+continue;
+}</p>
+
+<p>switch($c) {
+case ‘\0’: case ‘\t’: case ‘\r’: case ‘\f’: case ‘\n’: case ‘ ‘: break;
+case ‘%’:
+$isComment = true;
+break;</p>
+
+<p>default:
+$code = hexdec($c);
+if($code === 0 &amp;&amp; $c != ‘0’)
+return “”;</p>
+
+<p>if($isOdd)
+$codeHigh = $code;
+else
+$output .= chr($codeHigh * 16 + $code);</p>
+
+<p>$isOdd = !$isOdd;
+break;
+}
+}</p>
+
+<p>if($input[$i] != ‘&gt;’)
+return “”;</p>
+
+<p>if($isOdd)
+$output .= chr($codeHigh * 16);</p>
+
+<p>return $output;
+}</p>
+
+<p>private function decodeAscii85($input) {
+$output = “”;</p>
+
+<p>$isComment = false;
+$ords = array();</p>
+
+<p>for($i = 0, $state = 0; $i &lt; strlen($input) &amp;&amp; $input[$i] != ‘~’; $i++) {
+$c = $input[$i];</p>
+
+<p>if($isComment) {
+if ($c == ‘\r’ || $c == ‘\n’)
+$isComment = false;
+continue;
+}</p>
+
+<p>if ($c == ‘\0’ || $c == ‘\t’ || $c == ‘\r’ || $c == ‘\f’ || $c == ‘\n’ || $c == ‘ ‘)
+continue;
+if ($c == ‘%’) {
+$isComment = true;
+continue;
+}
+if ($c == ‘z’ &amp;&amp; $state === 0) {
+$output .= str_repeat(chr(0), 4);
+continue;
+}
+if ($c &lt; ‘!’ || $c &gt; ‘u’)
+return “”;</p>
+
+<p>$code = ord($input[$i]) &amp; 0xff;
+$ords[$state++] = $code – ord(‘!’);</p>
+
+<p>if ($state == 5) {
+$state = 0;
+for ($sum = 0, $j = 0; $j &lt; 5; $j++)
+$sum = $sum * 85 + $ords[$j];
+for ($j = 3; $j &gt;= 0; $j–)
+$output .= chr($sum &gt;&gt; ($j * 8));
+}
+}
+if ($state === 1)
+return “”;
+elseif ($state &gt; 1) {
+for ($i = 0, $sum = 0; $i &lt; $state; $i++)
+$sum += ($ords[$i] + ($i == $state – 1)) * pow(85, 4 – $i);
+for ($i = 0; $i &lt; $state – 1; $i++) {
+try {
+if(false == ($o = chr($sum &gt;&gt; ((3 – $i) * 8)))) {
+throw new Exception(‘Error’);
+}
+$output .= $o;
+} catch (Exception $e) { /<em>Dont do anything</em>/ }
+}
+}</p>
+
+<p>return $output;
+}</p>
+
+<p>private function decodeFlate($data) {
+return @gzuncompress($data);
+}</p>
+
+<p>private function getObjectOptions($object) {
+$options = array();</p>
+
+<p>if (preg_match(“#&lt;&lt;(.*)&gt;&gt;#ismU”, $object, $options)) {
+$options = explode(“/”, $options[1]);
+@array_shift($options);</p>
+
+<p>$o = array();
+for ($j = 0; $j &lt; <a href="https://github.com/count" class="user-mention">@count</a>($options); $j++) {
+$options[$j] = preg_replace(“#\s+#”, ” “, trim($options[$j]));
+if (strpos($options[$j], ” “) !== false) {
+$parts = explode(” “, $options[$j]);
+$o[$parts[0]] = $parts[1];
+} else
+$o[$options[$j]] = true;
+}
+$options = $o;
+unset($o);
+}</p>
+
+<p>return $options;
+}</p>
+
+<p>private function getDecodedStream($stream, $options) {
+$data = “”;
+if (empty($options[“Filter”]))
+$data = $stream;
+else {
+$length = !empty($options[“Length”]) ? $options[“Length”] : strlen($stream);
+$_stream = substr($stream, 0, $length);</p>
+
+<p>foreach ($options as $key =&gt; $value) {
+if ($key == “ASCIIHexDecode”)
+$_stream = $this-&gt;decodeAsciiHex($_stream);
+elseif ($key == “ASCII85Decode”)
+$_stream = $this-&gt;decodeAscii85($_stream);
+elseif ($key == “FlateDecode”)
+$_stream = $this-&gt;decodeFlate($_stream);
+elseif ($key == “Crypt”) { // TO DO
+}
+}
+$data = $_stream;
+}
+return $data;
+}</p>
+
+<p>private function getDirtyTexts(&amp;$texts, $textContainers) {
+for ($j = 0; $j &lt; count($textContainers); $j++) {
+if (preg_match_all(“#[(.<em>)]\s</em>TJ[\n|\r]#ismU”, $textContainers[$j], $parts))
+$texts = array_merge($texts, array(<a href="https://github.com/implode" class="user-mention">@implode</a>(”, $parts[1])));
+elseif (preg_match_all(“#T[d|w|m|f]\s<em>((.</em>))\s<em>Tj[\n|\r]#ismU”, $textContainers[$j], $parts))
+$texts = array_merge($texts, array(<a href="https://github.com/implode" class="user-mention">@implode</a>(”, $parts[1])));
+elseif (preg_match_all(“#T[d|w|m|f]\s</em>([.<em>])\s</em>Tj[\n|\r]#ismU”, $textContainers[$j], $parts))
+$texts = array_merge($texts, array(<a href="https://github.com/implode" class="user-mention">@implode</a>(”, $parts[1])));
+}</p>
+
+<p>}</p>
+
+<p>private function getCharTransformations(&amp;$transformations, $stream) {
+preg_match_all(“#([0-9]+)\s+beginbfchar(.<em>)endbfchar#ismU”, $stream, $chars, PREG_SET_ORDER);
+preg_match_all(“#([0-9]+)\s+beginbfrange(.</em>)endbfrange#ismU”, $stream, $ranges, PREG_SET_ORDER);</p>
+
+<p>for ($j = 0; $j &lt; count($chars); $j++) {
+$count = $chars[$j][1];
+$current = explode(“\n”, trim($chars[$j][2]));
+for ($k = 0; $k &lt; $count &amp;&amp; $k &lt; count($current); $k++) {
+if (preg_match(“#&lt;([0-9a-f]{2,4})&gt;\s+&lt;([0-9a-f]{4,512})&gt;#is”, trim($current[$k]), $map))
+$transformations[str_pad($map[1], 4, “0”)] = $map[2];
+}
+}
+for ($j = 0; $j &lt; count($ranges); $j++) {
+$count = $ranges[$j][1];
+$current = explode(“\n”, trim($ranges[$j][2]));
+for ($k = 0; $k &lt; $count &amp;&amp; $k &lt; count($current); $k++) {
+if (preg_match(“#&lt;([0-9a-f]{4})&gt;\s+&lt;([0-9a-f]{4})&gt;\s+&lt;([0-9a-f]{4})&gt;#is”, trim($current[$k]), $map)) {
+$from = hexdec($map[1]);
+$to = hexdec($map[2]);
+$_from = hexdec($map[3]);</p>
+
+<p>for ($m = $from, $n = 0; $m &lt;= $to; $m++, $n++)
+$transformations[sprintf(“%04X”, $m)] = sprintf(“%04X”, $_from + $n);
+} elseif (preg_match(“#&lt;([0-9a-f]{4})&gt;\s+&lt;([0-9a-f]{4})&gt;\s+[(.*)]#ismU”, trim($current[$k]), $map)) {
+$from = hexdec($map[1]);
+$to = hexdec($map[2]);
+$parts = preg_split(“#\s+#”, trim($map[3]));</p>
+
+<p>for ($m = $from, $n = 0; $m &lt;= $to &amp;&amp; $n &lt; count($parts); $m++, $n++)
+$transformations[sprintf(“%04X”, $m)] = sprintf(“%04X”, hexdec($parts[$n]));
+}
+}
+}
+}
+private function getTextUsingTransformations($texts, $transformations) {
+$document = “”;
+for ($i = 0; $i &lt; count($texts); $i++) {
+$isHex = false;
+$isPlain = false;</p>
+
+<p>$hex = “”;
+$plain = “”;
+for ($j = 0; $j &lt; strlen($texts[$i]); $j++) {
+$c = $texts[$i][$j];
+switch($c) {
+case “&lt;“:
+$hex = “”;
+$isHex = true;
+$isPlain = false;
+break;
+case “&gt;”:
+$hexs = str_split($hex, $this-&gt;multibyte); // 2 or 4 (UTF8 or ISO)
+for ($k = 0; $k &lt; count($hexs); $k++) {</p>
+
+<p>$chex = str_pad($hexs[$k], 4, “0”); // Add tailing zero
+if (isset($transformations[$chex]))
+$chex = $transformations[$chex];
+$document .= html_entity_decode(“&amp;#x”.$chex.”;”);
+}
+$isHex = false;
+break;
+case “(“:
+$plain = “”;
+$isPlain = true;
+$isHex = false;
+break;
+case “)”:
+$document .= $plain;
+$isPlain = false;
+break;
+case “\”:
+$c2 = $texts[$i][$j + 1];
+if (in_array($c2, array(“\”, “(“, “)”))) $plain .= $c2;
+elseif ($c2 == “n”) $plain .= ‘\n’;
+elseif ($c2 == “r”) $plain .= ‘\r’;
+elseif ($c2 == “t”) $plain .= ‘\t’;
+elseif ($c2 == “b”) $plain .= ‘\b’;
+elseif ($c2 == “f”) $plain .= ‘\f’;
+elseif ($c2 &gt;= ‘0’ &amp;&amp; $c2 &lt;= ‘9’) {
+$oct = preg_replace(“#[^0-9]#”, “”, substr($texts[$i], $j + 1, 3));
+$j += strlen($oct) – 1;
+$plain .= html_entity_decode(“&amp;#”.octdec($oct).”;”, $this-&gt;convertquotes);
+}
+$j++;
+break;</p>
+
+<p>default:
+if ($isHex)
+$hex .= $c;
+elseif ($isPlain)
+$plain .= $c;
+break;
+}
+}
+$document .= “\n”;
+}</p>
+
+<p>return $document;
+}</p>
+
+<p>}</p>
+
+<p>I have mention some code for how to read email from a string and phone number. Basically I am facing some issue when i trying to upload resume and want to read this file. I got some ideas that I can use preg_match_all function. If you will find better solution please let me know that I can change this code and our programmer can use essay this code.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/jnanendraveer/read-word-file-in-to-php-">Read-word-file-in-to-php-</a> is maintained by <a href="https://github.com/jnanendraveer">jnanendraveer</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
